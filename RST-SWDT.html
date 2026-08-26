@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Spacetime Wardality Temporal Demonstrator</title>
+    <style>
+        body {
+            background-color: #0d0f17;
+            color: #e2e8f0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .card {
+            background: #161b26;
+            border: 1px solid #2d3748;
+            border-radius: 16px;
+            width: 620px;
+            padding: 24px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .title-main {
+            font-size: 16px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            color: #e2e8f0;
+        }
+        .title-sub {
+            font-size: 14px;
+            color: #94a3b8;
+            margin-top: 4px;
+        }
+        .pause-btn {
+            background: #242c3d;
+            border: none;
+            color: #e2e8f0;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .canvas-container {
+            position: relative;
+            background: #111520;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid #1e293b;
+        }
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin: 20px 0 16px 0;
+            flex-wrap: wrap;
+        }
+        .legend-item {
+            background: #1e293b;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #cbd5e1;
+        }
+        .dot {
+            width: 10px;
+            height: 4px;
+            border-radius: 2px;
+        }
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 10px;
+        }
+        .slider-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .slider-label {
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            color: #94a3b8;
+        }
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        input[type=range] {
+            flex: 1;
+            accent-color: #3b82f6;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <div class="header">
+        <div>
+            <div class="title-main">SPACETIME WARDALITY TEMPORAL DEMONSTRATOR</div>
+            <div class="title-sub">Polarizability: <span id="title-pol-val">0.50</span> • <span id="sub-slice-text">State: Tangent Contact Past & Wave Dynamics Future</span></div>
+        </div>
+        <button class="pause-btn" id="toggle-pause">❚❚</button>
+    </div>
+
+    <div class="canvas-container">
+        <svg width="572" height="270" viewBox="0 0 572 270">
+            <defs>
+                <linearGradient id="photonGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="rgba(217, 119, 6, 0.45)" />
+                    <stop offset="100%" stop-color="rgba(217, 119, 6, 0.05)" />
+                </linearGradient>
+                <linearGradient id="gluonGrad" x1="0" y1="1" x2="0" y2="0">
+                    <stop offset="0%" stop-color="rgba(22, 163, 74, 0.45)" />
+                    <stop offset="100%" stop-color="rgba(22, 163, 74, 0.05)" />
+                </linearGradient>
+
+                <!-- Soft Gaussian Blur Filter for the Electrification Field -->
+                <filter id="fuzzyBlur" x="-30%" y="-30%" width="160%" height="160%">
+                    <feGaussianBlur stdDeviation="8" result="blur" />
+                </filter>
+            </defs>
+
+            <!-- Column Labels -->
+            <text x="70" y="15" fill="#ef4444" font-size="11" font-weight="600" text-anchor="middle">Past</text>
+            <text x="70" y="27" fill="#ef4444" font-size="9" opacity="0.8" text-anchor="middle">(negative charge)</text>
+
+            <text id="center-column-label" x="286" y="18" fill="#a855f7" font-size="11" font-weight="600" text-anchor="middle">Present</text>
+
+            <text x="502" y="15" fill="#3b82f6" font-size="11" font-weight="600" text-anchor="middle">Future</text>
+            <text x="502" y="27" fill="#3b82f6" font-size="9" opacity="0.8" text-anchor="middle">(positive charge)</text>
+
+            <!-- Spin Labels -->
+            <text x="15" y="46" fill="#64748b" font-size="10">Spin 1</text>
+            <text x="15" y="245" fill="#64748b" font-size="10">Spin 1/2</text>
+            <text x="525" y="46" fill="#64748b" font-size="10">Spin 1/2</text>
+            <text x="535" y="245" fill="#64748b" font-size="10">Spin 1</text>
+
+            <!-- Photon Continuum Area -->
+            <path id="photonArea" fill="url(#photonGrad)" opacity="0.65"/>
+
+            <!-- Gluon Continuum Area -->
+            <path id="gluonArea" fill="url(#gluonGrad)" opacity="0.65"/>
+
+            <!-- Light Cone Trumpet Outer Boundaries -->
+            <path id="topBoundary" d="M 15 58 Q 286 170 557 58" fill="none" stroke="#334155" stroke-width="1.5" />
+            <path id="bottomBoundary" d="M 15 232 Q 286 120 557 232" fill="none" stroke="#334155" stroke-width="1.5" />
+
+            <!-- Region Labels -->
+            <text x="90" y="125" fill="#d97706" font-size="11" font-weight="600">Photon Continuum</text>
+            <text x="380" y="170" fill="#16a34a" font-size="11" font-weight="600">Gluon Continuum</text>
+
+            <!-- Stationary Action Line (Least Action Axis) -->
+            <line id="leastActionLine" x1="15" y1="140" x2="557" y2="140" stroke="#eab308" stroke-width="2" />
+
+            <!-- Soft Fuzzy-Edged Electrification Field -->
+            <path id="rectificationField" fill="rgba(34, 197, 94, 0.75)" stroke="none" filter="url(#fuzzyBlur)" />
+
+            <!-- Dynamic Pulsing Aperture -->
+            <circle id="aperture" cx="286" cy="140" r="10" fill="none" stroke="#a855f7" stroke-width="2" opacity="1"/>
+
+            <!-- Past Wave (Red) & Future Wave (Blue) -->
+            <path id="pastWave" fill="none" stroke="#ef4444" stroke-width="3" opacity="0.95" stroke-linecap="round" stroke-linejoin="round"/>
+            <path id="futureWave" fill="none" stroke="#3b82f6" stroke-width="3" opacity="0.95" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+    </div>
+
+    <!-- Controls & Legend -->
+    <div class="legend">
+        <div class="legend-item"><div class="dot" style="background:#eab308;"></div>Least Action</div>
+        <div class="legend-item"><div class="dot" style="background:#ef4444;"></div>Past Wave</div>
+        <div class="legend-item"><div class="dot" style="background:#3b82f6;"></div>Future Wave</div>
+        <div class="legend-item"><div class="dot" style="background:#22c55e;"></div>Electrification Field</div>
+    </div>
+
+    <div class="controls">
+        <div class="slider-row">
+            <span class="slider-label">DISRUPTION / POLARIZABILITY</span>
+        </div>
+        <div class="slider-container">
+            <input type="range" id="polSlider" min="0" max="1" step="0.01" value="0.50">
+        </div>
+    </div>
+</div>
+
+<script>
+    const pastWave = document.getElementById('pastWave');
+    const futureWave = document.getElementById('futureWave');
+    const rectField = document.getElementById('rectificationField');
+    const polSlider = document.getElementById('polSlider');
+    const titleVal = document.getElementById('title-pol-val');
+    const pauseBtn = document.getElementById('toggle-pause');
+    const centerColumnLabel = document.getElementById('center-column-label');
+    const subSliceText = document.getElementById('sub-slice-text');
+    const leastActionLine = document.getElementById('leastActionLine');
+    const aperture = document.getElementById('aperture');
+    const photonArea = document.getElementById('photonArea');
+    const gluonArea = document.getElementById('gluonArea');
+
+    let t = 0;
+    let pulseProgress = 0;
+    let isRunning = true;
+
+    pauseBtn.addEventListener('click', () => {
+        isRunning = !isRunning;
+        pauseBtn.textContent = isRunning ? '❚❚' : '▶';
+    });
+
+    function updateSliderValues() {
+        const val = parseFloat(polSlider.value).toFixed(2);
+        titleVal.textContent = val;
+    }
+
+    polSlider.addEventListener('input', updateSliderValues);
+
+    function getTopBoundaryY(x) {
+        const norm = (x - 15) / (557 - 15);
+        return (1 - norm)**2 * 58 + 2 * (1 - norm) * norm * 170 + norm**2 * 58;
+    }
+
+    function getBottomBoundaryY(x) {
+        const norm = (x - 15) / (557 - 15);
+        return (1 - norm)**2 * 232 + 2 * (1 - norm) * norm * 120 + norm**2 * 232;
+    }
+
+    function buildContinuumPaths() {
+        const centerX = 286;
+        const centerY = 140;
+
+        const angleDx = 32; 
+
+        let photonD = `M 15 ${centerY} L 15 ${getTopBoundaryY(15)}`;
+        for (let x = 15; x <= (centerX - angleDx); x += 3) {
+            photonD += ` L ${x} ${getTopBoundaryY(x)}`;
+        }
+        photonD += ` L ${centerX} ${centerY} Z`;
+        photonArea.setAttribute('d', photonD);
+
+        let gluonD = `M ${centerX} ${centerY}`;
+        for (let x = (centerX + angleDx); x <= 557; x += 3) {
+            gluonD += ` L ${x} ${getBottomBoundaryY(x)}`;
+        }
+        gluonD += ` L 557 ${centerY} Z`;
+        gluonArea.setAttribute('d', gluonD);
+    }
+
+    buildContinuumPaths();
+
+    function animate() {
+        if (isRunning) {
+            t += 0.035;
+            pulseProgress = (pulseProgress + 0.02) % 1;
+        }
+
+        const alpha = parseFloat(polSlider.value);
+        const centerY = 140;
+        const centerX = 286;
+        
+        const areaPulse = Math.sin(t * 1.5) * 0.15 + 0.55;
+        photonArea.setAttribute('opacity', areaPulse);
+        gluonArea.setAttribute('opacity', areaPulse);
+
+        if (alpha === 0) {
+            centerColumnLabel.textContent = "Determinism";
+            centerColumnLabel.setAttribute("fill", "#eab308");
+            subSliceText.textContent = "State: Deterministic Stationary Action";
+            
+            leastActionLine.setAttribute("stroke-dasharray", "none");
+            aperture.style.display = "none";
+
+            pastWave.setAttribute('d', '');
+            futureWave.setAttribute('d', '');
+            rectField.setAttribute('d', '');
+        } else {
+            centerColumnLabel.textContent = "Present";
+            centerColumnLabel.setAttribute("fill", "#a855f7");
+            subSliceText.textContent = "State: Disruption-Shifted Touch Point";
+
+            leastActionLine.setAttribute("stroke-dasharray", "4 4");
+            aperture.style.display = "block";
+
+            const radius = 4 + pulseProgress * (18 + 18 * alpha);
+            const opacity = (1 - pulseProgress) * alpha;
+            aperture.setAttribute('r', radius);
+            aperture.setAttribute('opacity', opacity);
+
+            // Contact kiss x shifted in past domain
+            const minX = 40;
+            const maxX = 240;
+            const x_touch = minX + alpha * (maxX - minX);
+
+            const pastCoords = [];
+            const futureCoords = [];
+
+            // Past Wave (Red): Tangent kiss contact dynamics at x_touch
+            for (let x = 15; x <= centerX; x += 2) {
+                const bottomY = getBottomBoundaryY(x);
+                const maxGap = bottomY - centerY; 
+
+                const touchDist = (x - x_touch) / 60;
+                const tangentShape = 1 - Math.exp(-touchDist * touchDist);
+
+                const pulse = Math.sin(t * 2) * 0.15 + 0.85;
+
+                const divergence = (x < x_touch) 
+                    ? Math.pow((x_touch - x) / (x_touch - 15 + 0.1), 0.85)
+                    : Math.pow((x - x_touch) / (centerX - x_touch + 0.1), 0.85);
+
+                const y = centerY + tangentShape * divergence * maxGap * 0.9 * alpha * pulse;
+                pastCoords.push({x, y});
+            }
+
+            // Future Wave (Blue): Uncollapsed probability wave domain
+            for (let x = centerX; x <= 557; x += 2) {
+                const topY = getTopBoundaryY(x);
+                const maxGap = centerY - topY;
+
+                const normX = (x - centerX) / (557 - centerX);
+                const osc = Math.sin(normX * Math.PI * 1.5 - t);
+                const envelope = Math.pow(normX, 0.7);
+
+                const minOffset = 8 * alpha;
+                const y = centerY - (minOffset + (osc * 0.35 + 0.65) * envelope * (maxGap - minOffset)) * alpha;
+                futureCoords.push({x, y});
+            }
+
+            // Render Wave Paths
+            pastWave.setAttribute('d', pastCoords.map((pt, i) => `${i === 0 ? 'M' : 'L'} ${pt.x} ${pt.y}`).join(' '));
+            futureWave.setAttribute('d', futureCoords.map((pt, i) => `${i === 0 ? 'M' : 'L'} ${pt.x} ${pt.y}`).join(' '));
+
+            // Electrification Field bounded by waveforms
+            if (alpha > 0.01) {
+                const forward = pastCoords.map((pt, i) => `${i === 0 ? 'M' : 'L'} ${pt.x} ${pt.y}`).join(' ');
+                const backward = futureCoords.slice().reverse().map(pt => `L ${pt.x} ${pt.y}`).join(' ');
+                rectField.setAttribute('d', `${forward} ${backward} Z`);
+                rectField.setAttribute('fill-opacity', Math.min(0.85, alpha * 0.9));
+            } else {
+                rectField.setAttribute('d', '');
+            }
+        }
+
+        requestAnimationFrame(animate);
+    }
+
+    animate();
+</script>
+
+</body>
+</html>
